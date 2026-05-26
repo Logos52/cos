@@ -6,6 +6,7 @@
 set -e
 
 REPO="/Users/n1/Projects/llm-knowledge-base"
+# Note: remote is Logos52/logos52.github.io (not llm-knowledge-base, which is archived)
 MSG="${1:-"kb update $(date '+%Y-%m-%d %H:%M')"}"
 
 cd "$REPO"

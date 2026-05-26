@@ -1,0 +1,9 @@
+# cos TUI dependencies
+# Install with: .venv/bin/pip install -r requirements.txt  (or just follow tui/README.md)
+textual>=0.80
+
+# Test dependencies (added surgically for out-5 validation and testing of TUI flows + Grok X-brief writes)
+# These enable pytest, async support for Textual Pilot, and textual[testing] extras.
+pytest>=8.0
+pytest-asyncio>=0.23
+textual[testing]>=0.80

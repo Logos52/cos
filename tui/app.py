@@ -9,6 +9,7 @@ from pathlib import Path
 from textual.app import App, ComposeResult
 from textual.binding import Binding
 from textual.containers import Grid, Horizontal, Vertical
+from textual.events import Click
 from textual.reactive import reactive
 from textual.widgets import Button, Footer, Header, Static
 
@@ -62,11 +63,16 @@ class DomainTile(Static):
             )
 
         if self.title == "Learning":
-            return (
+            base = (
                 f"[bold cyan]Learning Pipeline[/]\n"
                 f"Backlog: [bold]{d.get('backlog_count', 0)}[/]\n"
                 f"Queue: {d.get('queue_length', 0)}"
             )
+            ts = d.get("tile_summary")
+            if ts:
+                short = (ts.split(". ")[0] + ".")[:70]  # first sentence-ish, clipped
+                base += f"\n[dim]Summary: {short}[/]"
+            return base
 
         if self.title == "Schedule":
             note = d.get("note") or ("[yellow]calendar unavailable[/]" if d.get("calendar_unavailable") else "")
@@ -78,14 +84,44 @@ class DomainTile(Static):
             )
 
         if self.title == "Knowledge Work":
-            return (
+            base = (
                 f"[bold cyan]Knowledge Work[/]\n"
                 f"Inbox: [bold]{d.get('inbox_count', 0)}[/]\n"
                 f"Workbench: {d.get('workbench_count', 0)}\n"
                 f"Journal Qs: {d.get('journal_questions', 0)}"
             )
+            ts = d.get("tile_summary")
+            if ts:
+                short = (ts.split(". ")[0] + ".")[:70]
+                base += f"\n[dim]Summary: {short}[/]"
+            return base
+
+        if self.title == "Brief":
+            # Option A priority: full synthesized paragraph (high-quality, from status.json tile_summary)
+            # + stats. This tile is the largest (spanned) in the hierarchy.
+            summary = d.get("tile_summary") or "Knowledge work in motion."
+            return (
+                f"[bold cyan]Brief[/] [dim](Knowledge Work priority)[/]\n"
+                f"[italic]{summary}[/]\n"
+                f"Inbox: [bold]{d.get('inbox_count', 0)}[/]  "
+                f"WB: {d.get('workbench_count', 0)}  JQs: {d.get('journal_questions', 0)}"
+            )
 
         return f"[bold]{self.title}[/]\n(no data)"
+
+    def on_click(self, event: Click) -> None:
+        """Make tiles mouse-clickable to push dedicated screens (start with BriefScreen).
+
+        Matches the recommended design: tiles focusable/clickable to dedicated workspaces.
+        Only Brief is fully wired for this vertical slice; others notify future intent.
+        Preserves all keyboard hotkeys and data flows.
+        """
+        event.stop()
+        if self.title == "Brief":
+            self.app.action_open_brief()
+        else:
+            self.app.notify(f"{self.title} dedicated view coming soon (use hotkeys for now).")
+            self.app.log_event(f"clicked tile: {self.title}")
 
 
 class CosDashboardApp(App):
@@ -101,8 +137,9 @@ class CosDashboardApp(App):
 
     #tiles {
         height: 1fr;                    /* take all available vertical space */
-        grid-size: 5 1;                 /* 5 columns, 1 row (tiles side-by-side) */
-        grid-columns: 1fr 1fr 1fr 1fr 1fr;  /* Textual does not support repeat() */
+        grid-size: 3 2;                 /* 3 cols x 2 rows for spanned priority hierarchy */
+        grid-columns: 1fr 1fr 1fr;
+        grid-rows: 2fr 1fr;             /* Brief row gets more vertical weight (priority) */
         grid-gutter: 1 1;
         padding: 1 0;
     }
@@ -110,8 +147,14 @@ class CosDashboardApp(App):
     .tile {
         border: round #1e212a;
         padding: 1 1;
-        min-height: 7;                  /* guarantee the box is tall enough to see */
+        min-height: 6;                  /* base; multi-row grid + spans drive sizing */
         height: 100%;
+    }
+
+    .brief {
+        /* Spanned priority tile: Brief/Knowledge Work largest per design */
+        min-height: 11;
+        border: round #2a3a4a;
     }
 
     .tile-content {
@@ -212,15 +255,21 @@ class CosDashboardApp(App):
             grid.remove_children()
 
             tiles = [
+                # Option A: Brief (Knowledge Work) first for spanned priority grid.
+                # It will receive column_span=2 and .brief class for largest visual weight.
+                ("Brief", data.get("knowledge_work", {})),
                 ("Finances", data.get("finances", {})),
                 ("Knowledge Base", data.get("kb", {})),
                 ("Learning", data.get("learning", {})),
                 ("Schedule", data.get("schedule", {})),
-                ("Knowledge Work", data.get("knowledge_work", {})),
             ]
 
             for title, payload in tiles:
                 tile = DomainTile(title, payload, classes="tile")
+                if title == "Brief":
+                    tile.add_class("brief")
+                    tile.styles.column_span = 2
+                    # row_span defaults to 1; the CSS grid-rows: 2fr 1fr gives the first row (containing Brief) more height
                 grid.mount(tile)
         except Exception as e:
             self.log_event(f"tile populate error: {e}")
@@ -256,6 +305,12 @@ class CosDashboardApp(App):
             self.log_event(f"ensure error (non-fatal): {e}")
         # Always (re)load so the dashboard shows whatever is present
         self.data = load_all()
+        # Option C: surface tile_summaries (Brief/KW + Learning priority) in activity log for immediate visibility.
+        # (Full rich tile layouts deferred to Option A; this is the simple/logs path.)
+        for label, key in (("Knowledge Work", "knowledge_work"), ("Learning", "learning")):
+            s = (self.data.get(key) or {}).get("tile_summary")
+            if s:
+                self.log_event(f"{label} tile_summary: {s[:85]}...")
         ts = datetime.now().strftime("%H:%M:%S")
         root = os.environ.get("COS_ROOT") or (Path.home() / "cos")
         self.sub_title = f"last refresh: {ts}  |  root: {root}"
@@ -377,10 +432,10 @@ class CosDashboardApp(App):
 [bold]In-app skill support:[/]
 Hotkeys launch corresponding skills from toolbox/ (brief, research, capture, tasks-calendar/).
 
-[bold]Grok integration skeleton:[/]
-"Run with Grok" options available in BriefScreen (press 'g' or button for AI News stub that writes to data layer).
-See BriefScreen help for details. ResearchScreen (this wave) adds the second: ticker/software research with richer writes.
-Future: richer X/research calls that populate ai-news.json etc.
+[bold]Grok integration (real X):[/]
+"Run Grok X-Brief" ('g' inside BriefScreen opened via 'b', or `cos brief` then g): real X research on Textual TUI / personal OS / Grok Build / agent memory/LLM tooling topics. Writes structured threads via write_grok_ai_news to ai-news.json; "generated by Grok" + immediate UI refresh in AI News.
+Also callable from CLI/Grok scripts (import write_grok_ai_news). See BriefScreen ? help.
+ResearchScreen adds "Run with Grok" for domain research.
 
 [bold]Future:[/]
 Dedicated views (Phase 2+) replacing remaining placeholders.

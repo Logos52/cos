@@ -20,7 +20,9 @@ cos/
 ├── CLAUDE.md                   # Cross-cutting memory: owner, terms, hard rules
 ├── TASKS.md                    # Plugin task list (also backs tasks-calendar)
 ├── dashboard.html              # Always-on visual — regenerated daily
-├── PRD-cos.md                  # The original design document
+├── prds/                       # Design documents and PRDs
+│   ├── PRD-cos.md              # The original design document
+│   └── PRD-overview-brief.md  # Overview Brief domain
 ├── toolbox/                    # On-demand skill prompts
 │   ├── today.md
 │   ├── research.md
@@ -150,6 +152,27 @@ cos/
 - `dashboard.html` — regenerated with personal data embedded
 
 The `.gitignore` handles all of the above. The system structure and prompts are public; the data is not.
+
+---
+
+## Cowork Surface vs. Portable Core (Model-Agnostic Layer)
+This section (added out-4) makes explicit what depends on the Claude Cowork Productivity plugin vs. what is portable via the stable data layer contract. See also prds/AUTONOMY-CHARTER.md and migration PRD.
+
+**Cowork-specific (plugin / Claude Cowork runtime only; not portable without equivalent scheduler + chat surface):**
+- Scheduled refreshes + morning brief (Productivity plugin tasks at 07:00 ICT etc., per CLAUDE.md schedules).
+- On-demand skills execution surface: `/today`, `/research [ticker|software]`, `/capture`, `/brief`, `/builder` (via `toolbox/*.md` prompts in Cowork chat; plugin provides runtime + memory + TASKS.md backing for tasks-calendar).
+- `dashboard.html` (plugin-generated + refreshed visual; snapshot from data/).
+- Plugin TASKS.md as live source for tasks domain; plugin deep `memory/`.
+- Connectors (Calendar etc.) + overall Cowork project orchestration.
+
+**Portable / model-agnostic core (any runtime: TUI, Grok Build, Hermes, scripts; data layer is the contract):**
+- All state: `~/cos/` plain files under per-domain `inputs/` (human-maintained, never written by automation), `data/` (machine-refreshed, one-writer invariant), `outputs/`, `memory/`, `briefs/`, `builds/`, `overview-brief/data/`.
+- Canonical contracts: `finances/data/runway.json`, `knowledge-base/data/{stale-notes.json,open-questions.json}`, `learning-pipeline/data/intake-queue.json`, `tasks-calendar/data/upcoming.json`, `overview-brief/data/status.json` (and ai-news.json for Grok X).
+- Consumers: Textual TUI (`tui/app.py`, `tui/data/loader.py`, dedicated screens, `scripts/cos` launcher with `cos brief` etc. real dispatch), future standalone Grok refreshers / X tools (write same contracts), CLI, Hermes skills.
+- Hard invariants (enforced across surfaces): vault `~/llm-knowledge-base/` read-only for all automation (only `/capture` or equiv. stages + explicit proceed writes); `inputs/` human-only; one writer per `data/` file; timezone from `tasks-calendar/inputs/config.json` (never hardcoded); anything destructive/irreversible shows plan + waits for explicit "proceed" (no inference).
+- Unified entry: `cos` CLI + Grok skeletons now deliver parity for key skills in terminal / outside Cowork.
+
+This distinction enables safe migration: extend portable (TUI/Grok) while Cowork surfaces continue unchanged. New work classifies as Cowork-only or portable at PRD time.
 
 ---
 

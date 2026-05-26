@@ -1,0 +1,8 @@
+{
+  "vault_path": "~/llm-knowledge-base",
+  "inbox_path": "~/llm-knowledge-base/raw/inbox",
+  "workbench_path": "~/llm-knowledge-base/workbench",
+  "open_questions_source": "~/cos/knowledge-base/data/open-questions.json",
+  "max_journal_questions": 3,
+  "ai_news_path": "~/cos/overview-brief/data/ai-news.json"
+}

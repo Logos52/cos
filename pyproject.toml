@@ -1,0 +1,19 @@
+[project]
+name = "cos"
+version = "0.1.0"
+description = "cos — terminal mission control for the personal OS (Textual TUI)"
+readme = "tui/README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "textual>=0.80",
+]
+
+[project.scripts]
+cos = "tui.__main__:main"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["tui*"]

@@ -1,7 +1,7 @@
 # PRD — `cos`: An Autonomous Personal OS in Cowork
 
 **Owner:** Wedge · **Author:** drafted in Claude chat · **Build surface:** Claude Cowork (model-agnostic — any capable agent can execute)
-**Foundation:** Cowork Productivity plugin · **Data layer:** local files in `~/cos/` · **Status:** build-ready
+**Foundation:** Cowork Productivity plugin · **Data layer:** local files in `~/cos/` · **Status:** Foundational Cowork build complete; TUI MVP + model-agnostic migration in progress (see PRD-cos-model-agnostic-migration-and-terminal-dashboard.md); out-4 docs/process updates applied — 2026-05-26
 
 ---
 
@@ -24,6 +24,9 @@
 **Why it fits and scales:** Four domains is the metaprompt's ceiling for a single window, so it's deliberately split across two sessions rather than thinned. The architecture adds new domains as new folders without restructuring, so anything deferred (health, the Textual front-end) slots in later as a folder + workflows.
 
 **Foundational note:** `cos` is the base layer for downstream projects, so the owner is kept in the loop throughout — no unattended destructive or shipping actions in this build.
+
+## Current Status Snapshot (2026-05-26 + out-4)
+Foundational Cowork build (blocks 0-10 per §7) complete and operational. TUI MVP advanced in parallel waves (live dashboard tiles from data contracts via tui/data/loader.py, hotkeys to 4 real dedicated screens mirroring toolbox/ skills, Grok X-brief/research skeletons writing to data/ e.g. ai-news.json, unified `cos` CLI via scripts/cos + tui/__main__.py with real `cos brief` dispatch). Model-agnostic migration underway per dedicated PRD (data layer proven portable contract; Grok layer skeleton exists). out-4 complete: PRDs updated with status/roadmap, Cowork surface documented (see root README.md), Autonomy Charter created (prds/AUTONOMY-CHARTER.md). Cowork surfaces (Productivity plugin + schedules + TASKS.md + toolbox/ + plugin memory) continue working in parallel with portable TUI/CLI/Grok over same data/.
 
 ---
 
@@ -431,8 +434,8 @@ unattended. Always wait for the owner's explicit go-ahead.
 - `health/` — habits, metrics, whatever the owner later tracks. Add `inputs/data/outputs/` + a refresh workflow when ready.
 
 **Deferred patterns/components:**
-- **`cos` Textual app** — a terminal dashboard that reads the same `data/` files as `dashboard.html`. The §5 schemas are its data contract, so it slots in without changing the data layer. Built later in the owner's own toolchain (Grok Build / Codex).
-- **Full Autonomous Builder autonomy** — removing the sign-off gate for trusted classes of build. Requires resolving the autonomy/approval tension; deliberately not done in the foundational layer.
+- **`cos` Textual app** — a terminal dashboard that reads the same `data/` files as `dashboard.html`. The §5 schemas are its data contract, so it slots in without changing the data layer. Built later in the owner's own toolchain (Grok Build / Codex). (MVP advanced via parallel waves: live tiles/hotkeys/4 screens/Grok skeletons/CLI in tui/; see migration PRD Current Status + tui/README.md)
+- **Full Autonomous Builder autonomy** — removing the sign-off gate for trusted classes of build. Requires resolving the autonomy/approval tension; deliberately not done in the foundational layer. (Autonomy Charter created out-4 in prds/AUTONOMY-CHARTER.md; defines unattended vs always-gated + logging/rollback reqs per CLAUDE.md/AGENTS.md hard rules; see root README Cowork surface section)
 - **Live market-data source** for `/research [ticker]`.
 
 **How it scales without restructuring:** a new domain = a new `{domain}/` folder (the fixed `CLAUDE.md/inputs/data/outputs/` shape) + a refresh workflow + a memory subfolder + a dashboard tile + a line in the digest. No existing folder or workflow changes.

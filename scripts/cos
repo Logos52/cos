@@ -1,0 +1,97 @@
+#!/usr/bin/env bash
+# Launcher for the `cos` command (TUI dashboard + clean subcommand dispatch
+# to dedicated views and future CLI logic).
+#
+# Install (preferred for global `cos` command with proper packaging):
+#   pip install -e .          # uses pyproject.toml [project.scripts] entry point;
+#                              # after this, plain `cos` (or `cos brief` etc.) works globally
+#   (pipx install -e . is recommended for isolated global install)
+# Legacy/manual (still supported for dev/COS_ROOT auto-detect):
+#   chmod +x scripts/cos && ln -s $(pwd)/scripts/cos ~/bin/cos
+#   (ensure ~/bin or equivalent is in $PATH).
+#
+# Respects COS_ROOT env var or defaults to ~/cos.
+# When run from inside the source tree (dev), auto-detects the checkout root
+# via script location. This makes both `cos` (installed) and `./scripts/cos`
+# (direct) work cleanly and set the correct data root for the TUI loader.
+#
+# Python environment:
+#   The launcher automatically prefers a project-local .venv if present.
+#   One-time setup (recommended, run once in this terminal or enabler session):
+#     cd ~/projects/cos
+#     python3 -m venv .venv
+#     .venv/bin/pip install textual textual-dev
+#   After that, `cos` (or ./scripts/cos) just works from ANY terminal/session/agent
+#   with no activation, no --break-system-packages, and isolated deps.
+#
+# Subcommand support (clean dispatch, enhanced wave2-5):
+#   cos                 -> cos dashboard (main TUI: tiles + live data + hotkeys)
+#   cos dashboard       -> launch full Textual mission control dashboard
+#   cos brief           -> launch dedicated Brief TUI screen (REAL implementation:
+#                          live vault scans, canonical brief markdown, writes to
+#                          status.json + brief-*.md, Grok 'g' AI News skeleton)
+#   cos research        -> placeholder (future dedicated Research TUI + Grok X)
+#   cos capture         -> placeholder (future gated Capture TUI)
+#   cos tasks           -> placeholder (future Tasks/Calendar TUI; 'calendar' alias)
+#   cos --help
+#
+# Real logic (arg parsing, dispatch to TUI screens or CLI placeholders, help,
+# Grok notes) lives in tui/__main__.py (also available as `python -m tui ...`).
+# The shell wrapper is deliberately tiny: env setup (COS_ROOT, PYTHONPATH, venv)
+# + delegation. No duplication.
+#
+# Internal TODO (wave2-5+): As parallel waves add screens/research_screen.py etc.,
+# no changes needed in this bash file. Extend only the Python dispatch in
+# tui/__main__.py (choices + helpers). Bash stays the thin launcher per design.
+
+set -euo pipefail
+
+# Resolve COS_ROOT with precedence:
+# 1. Explicit COS_ROOT env (allows non-~/cos workspaces, tests, etc.)
+# 2. Auto-detect when this script lives inside a cos tree (dev / direct exec)
+# 3. Default to ~/cos (for installed `cos` command via symlink)
+if [ -n "${COS_ROOT:-}" ]; then
+  cos_root="$COS_ROOT"
+else
+  # Resolve the script's true location (best-effort for symlinks)
+  script_path="${BASH_SOURCE[0]}"
+  if command -v realpath >/dev/null 2>&1; then
+    script_path="$(realpath "$script_path" 2>/dev/null || echo "$script_path")"
+  fi
+  script_dir="$(cd "$(dirname "$script_path")" && pwd)"
+
+  if [ -d "$script_dir/../tui" ] && [ -f "$script_dir/../tui/__main__.py" ]; then
+    # Invoked from within the checkout (scripts/ is under cos root)
+    cos_root="$(cd "$script_dir/.." && pwd)"
+  else
+    cos_root="${HOME}/cos"
+  fi
+fi
+
+export COS_ROOT="$cos_root"
+
+# Make the tui package importable for `python -m tui` (and future siblings).
+# Matches the layout (tui/ at project root) and what the TUI loader + app expect.
+export PYTHONPATH="$cos_root${PYTHONPATH:+:$PYTHONPATH}"
+
+# Python interpreter resolution — designed for smooth multi-terminal / multi-agent use.
+#
+# Precedence (most specific first):
+#   1. Project-local .venv/bin/python   (created once via `python3 -m venv .venv` + pip install)
+#      → After one-time setup in this tree, `cos` (symlinked or ./scripts/cos) just works
+#        with no activation, no --break-system-packages, and no polluting Homebrew Python.
+#   2. Explicit PYTHON env var (power users / CI)
+#   3. Plain "python" (falls back to whatever the user has on PATH: pyenv, brew shim, etc.)
+#
+# This is the recommended "enabler" pattern for the cos TUI so other terminals,
+# future Grok/Claude/Codex sessions, or teammates can run it immediately.
+if [ -x "$cos_root/.venv/bin/python" ]; then
+  python_exec="$cos_root/.venv/bin/python"
+elif [ -n "${PYTHON:-}" ]; then
+  python_exec="$PYTHON"
+else
+  python_exec="python"
+fi
+
+# Delegate to the Python entry point (handles dashboard/brief/research/capture/tasks/--help/etc.).
+exec "$python_exec" -m tui "$@"

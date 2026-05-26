@@ -1,0 +1,105 @@
+{
+  "generated_at": "2026-05-26T21:03:44.231024+07:00",
+  "tile_summary": "Knowledge work active: 13 inbox (AI agents, productivity systems, study techniques, second-brain tooling) and 1 workbench item (wiki health). No journal questions. Knowledge base open questions focus on disciplined LLM tool use and sustaining higher cognition with AI. AI News digest awaiting Grok.",
+  "inbox": {
+    "count": 13,
+    "items": [
+      {
+        "title": "Getting The Most from your Chinese Textbook",
+        "source": "https://www.youtube.com/watch?v=d8HG7640o6o&t=645s",
+        "created": "2026-05-21",
+        "filename": "Getting The Most from your Chinese Textbook.md"
+      },
+      {
+        "title": "Give me 14 minutes, And I'll Turn You Into An Academic Weapon",
+        "source": "https://www.youtube.com/watch?v=QeOfsMHc7E4&t=324s",
+        "created": "2026-05-21",
+        "filename": "Give me 14 minutes, And I'll Turn You Into An Academic Weapon.md"
+      },
+      {
+        "title": "Hermes Agent Masterclass",
+        "source": "https://x.com/akshay_pachaar/article/2054564519280804028",
+        "created": "2026-05-17",
+        "filename": "Hermes Agent Masterclass.md"
+      },
+      {
+        "title": "How I UPGRADE the Most Popular Study Techniques",
+        "source": "https://www.youtube.com/watch?v=YyMA9RwAcGE",
+        "created": "2026-05-21",
+        "filename": "How I UPGRADE the Most Popular Study Techniques.md"
+      },
+      {
+        "title": "How Social Media Shortens Your Life",
+        "source": "https://www.gurwinder.blog/p/how-social-media-shortens-your-life",
+        "created": "2026-05-20",
+        "filename": "How Social Media Shortens Your Life.md"
+      },
+      {
+        "title": "How To Be So Productive That It Feels ILLEGAL",
+        "source": "https://www.youtube.com/watch?v=4FXScrmYKQ0",
+        "created": "2026-05-19",
+        "filename": "How To Be So Productive That It Feels ILLEGAL.md"
+      },
+      {
+        "title": "How to Become a Hermes Agent Operator",
+        "source": "https://x.com/shannholmberg/article/2055335043904492011",
+        "created": "2026-05-18",
+        "filename": "How to Become a Hermes Agent Operator.md"
+      },
+      {
+        "title": "How to Build Systems to Actually Achieve Your Goals",
+        "source": "https://www.youtube.com/watch?v=fXyRprdoEoE",
+        "created": "2026-05-19",
+        "filename": "How to Build Systems to Actually Achieve Your Goals.md"
+      },
+      {
+        "title": "How to Build Your Second Brain",
+        "source": "https://x.com/NickSpisak_/article/2040448463540830705",
+        "created": "2026-05-17",
+        "filename": "How to Build Your Second Brain.md"
+      },
+      {
+        "title": "How to Set Up Your Claude Cowork System from Scratch (With Prompts You Can Steal)",
+        "source": "https://resource.lonelyoctopus.com/doc/ce409140-9c5c-4923-a739-871048b339eb/",
+        "created": "2026-05-24",
+        "filename": "How to Set Up Your Claude Cowork System from Scratch (With Prompts You Can Steal).md"
+      },
+      {
+        "title": "Updated Essential AI Skills For 2026",
+        "source": "https://www.youtube.com/watch?v=tu4rU4YD1Jk",
+        "created": "2026-05-24",
+        "filename": "Updated Essential AI Skills For 2026.md"
+      },
+      {
+        "title": "XプレミアムプランでGrokとx_searchツールを使う",
+        "source": "https://zenn.dev/robustonian/articles/x_premium_grok_search",
+        "created": "2026-05-18",
+        "filename": "XプレミアムプランでGrokとx_searchツールを使う.md"
+      },
+      {
+        "title": "r0b0tlab/llm-wiki_obsidian_hermes_r0b0tlabbra1n: Filesystem-first LLM-Wiki + Obsidian + Hermes Agent memory system. Markdown source of truth, SQLite FTS5 search, secret scanning, tier-based memory. Built for local LLM setups.",
+        "source": "https://github.com/r0b0tlab/llm-wiki_obsidian_hermes_r0b0tlabbra1n",
+        "created": "2026-05-17",
+        "filename": "r0b0tlabllm-wiki_obsidian_hermes_r0b0tlabbra1n Filesystem-first LLM-Wiki + Obsidian + Hermes Agent memory system. Markdown source of truth, SQLite FTS5 search, secret scanning, tier-based memory. Built for local LLM setups..md"
+      }
+    ]
+  },
+  "workbench": {
+    "count": 1,
+    "items": [
+      {
+        "filename": "2026-05-25 Wiki Status + Health Check Report.md",
+        "days_old": 0
+      }
+    ]
+  },
+  "journal_questions": {
+    "count": 0,
+    "sample": []
+  },
+  "ai_news": {
+    "available": false,
+    "note": "Phase 2 — Grok Build"
+  },
+  "tile_summary": "Knowledge Work currently reflects a high-intake phase with a 13-item inbox dominated by agentic engineering resources, language immersion techniques (Mandarin Chinese and Vietnamese), productivity systems, second-brain architecture, and analyses of social media's cognitive costs. A single fresh workbench item tracks wiki health and status, while journal questions remain at zero. The pattern signals strong momentum in exploring Hermes agents, Textual reactive UIs, and study craft, creating an immediate opportunity for a synthesis pass that converts the incoming stream into durable patterns and clears processing debt."
+}
