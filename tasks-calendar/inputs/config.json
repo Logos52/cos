@@ -1,0 +1,8 @@
+{
+  "timezone": "Asia/Ho_Chi_Minh",
+  "timezone_abbr": "ICT",
+  "utc_offset": "+07:00",
+  "lookahead_days": 7,
+  "calendar_connector": "google-calendar",
+  "notes": "timezone is the source of truth — never hardcode. Update when location changes. lookahead_days controls how far ahead upcoming.json looks."
+}

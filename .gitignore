@@ -1,0 +1,58 @@
+# ============================================================
+# cos — Personal OS
+# Public: structure, prompts, conventions, dashboard template
+# Private: data, inputs, memory, briefs, builds
+# ============================================================
+
+# --- Private data (never commit) ---
+finances/data/
+finances/inputs/
+finances/outputs/
+knowledge-base/data/
+knowledge-base/outputs/
+learning-pipeline/data/
+learning-pipeline/outputs/
+tasks-calendar/data/
+tasks-calendar/outputs/
+health/data/
+health/inputs/
+health/outputs/
+
+# --- Personal memory (never commit) ---
+memory/people.md
+memory/terminology.md
+memory/finances/
+memory/knowledge-base/
+memory/learning-pipeline/
+memory/tasks-calendar/
+
+# Keep memory/ directory itself (for structure)
+!memory/.gitkeep
+
+# --- Generated outputs ---
+briefs/
+builds/archive/
+
+# --- Dashboard (regenerated daily with embedded personal data) ---
+dashboard.html
+
+# --- Obsidian local state ---
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/workspaces.json
+.obsidian/cache
+.obsidian/plugins/
+.obsidian/trash/
+.trash/
+
+# --- OS noise ---
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# --- Secrets ---
+.env
+.env.*
+*.key
+*.pem

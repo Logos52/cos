@@ -1,0 +1,27 @@
+{
+  "sources": [
+    {
+      "id": "manual",
+      "type": "manual",
+      "description": "Items added directly via /capture or queue edit",
+      "enabled": true
+    },
+    {
+      "id": "x-agentic",
+      "type": "x",
+      "description": "X/Twitter — agentic engineering threads",
+      "search_terms": ["agentic engineering", "LLM agents", "Claude MCP"],
+      "enabled": false,
+      "notes": "Enable when X connector is wired"
+    },
+    {
+      "id": "web-rss",
+      "type": "rss",
+      "description": "RSS feeds for AI/ML research",
+      "feeds": [],
+      "enabled": false,
+      "notes": "Add feed URLs when ready"
+    }
+  ],
+  "notes": "Only 'manual' is active by default. Enable others when connectors are available."
+}
