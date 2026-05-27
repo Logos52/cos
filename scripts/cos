@@ -25,8 +25,9 @@
 #   with no activation, no --break-system-packages, and isolated deps.
 #
 # Subcommand support (clean dispatch, enhanced wave2-5):
-#   cos                 -> cos dashboard (main TUI: tiles + live data + hotkeys)
-#   cos dashboard       -> launch full Textual mission control dashboard
+#   cos                 -> new home (python -m home) — primary surface
+#   cos legacy          -> old TUI mission control (python -m tui dashboard)
+#   cos dashboard       -> (legacy) full Textual mission control dashboard
 #   cos brief           -> launch dedicated Brief TUI screen (REAL implementation:
 #                          live vault scans, canonical brief markdown, writes to
 #                          status.json + brief-*.md, Grok 'g' AI News skeleton)
@@ -93,5 +94,29 @@ else
   python_exec="python"
 fi
 
-# Delegate to the Python entry point (handles dashboard/brief/research/capture/tasks/--help/etc.).
-exec "$python_exec" -m tui "$@"
+# Dispatch:
+#   cos               -> new greenfield home (python -m home) — the primary surface
+#   cos home          -> same
+#   cos legacy [...]  -> old TUI/dashboard (python -m tui ...), kept until retired
+#   cos <other>       -> existing tui subcommands (brief/research/capture/tasks/--help)
+#                        until they are reworked onto the new home
+case "${1:-}" in
+  ""|home)
+    exec "$python_exec" -m home
+    ;;
+  brief)
+    # cos brief [--no-push] -> regenerate the daily brief + push to Apple Notes
+    exec "$python_exec" -m home "$@"
+    ;;
+  scan)
+    # cos scan -> read-only vault coherence scan -> knowledge-base/data/coherence.json
+    exec "$python_exec" -m home "$@"
+    ;;
+  legacy)
+    shift
+    exec "$python_exec" -m tui "$@"
+    ;;
+  *)
+    exec "$python_exec" -m tui "$@"
+    ;;
+esac

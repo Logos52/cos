@@ -2,6 +2,10 @@
   "vault_path": "~/llm-knowledge-base",
   "stale_threshold_days": 90,
   "exclude_dirs": [".obsidian", ".trash", "templates"],
+  "coherence": {
+    "exclude_dirs": ["templates", "hermes", "raw", "_meta"],
+    "orphan_exclude_dirs": ["journal"]
+  },
   "open_question_extraction": {
     "methods": [
       {

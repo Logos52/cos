@@ -2,7 +2,7 @@
 
 **Version:** 2026-05-26 (out-4)  
 **Owner:** Wedge  
-**References:** CLAUDE.md (hard rules), AGENTS.md / operating-instructions.md (reversibility, PRD-first, no inferred permission), PRD-cos.md (Builder stages never ships unattended; foundational no unattended destructive), PRD-cos-model-agnostic-migration-and-terminal-dashboard.md (Phase 4), root README.md (Cowork surface section), data layer contracts.
+**References:** CLAUDE.md (hard rules), AGENTS.md / operating-instructions.md (reversibility, PRD-first, no inferred permission), PRD-cos.md (Builder stages never ships unattended; foundational no unattended destructive), root README.md (Cowork surface section), data layer contracts.
 
 **Goal:** Make the autonomy/approval tension explicit and operational. Define unattended (safe, low-risk) vs. always gated (destructive, irreversible, or high-trust). Require logging + clear rollback paths. "No proceed, no action." No inference from context or urgency.
 

@@ -2,11 +2,12 @@
 
 This powers:
     cos
-    cos dashboard
-    cos brief           # real dedicated TUI screen (BriefScreen with scans + Grok)
-    cos research        # placeholder for future dedicated screen
-    cos capture         # placeholder
-    cos tasks           # placeholder (also 'calendar' alias)
+    cos dashboard          # Basecamp snapshot HTML primary (generator + open)
+    cos tui                # Textual TUI companion (live tiles/hotkeys)
+    cos brief              # real dedicated TUI screen (BriefScreen with scans + Grok)
+    cos research           # placeholder for future dedicated screen
+    cos capture            # placeholder
+    cos tasks              # placeholder (also 'calendar' alias)
     python -m tui ...
     python -m tui brief
     python -m tui --help
@@ -18,12 +19,18 @@ The scripts/cos bash launcher ensures COS_ROOT (for data layer) and
 PYTHONPATH are set correctly before exec'ing this (still useful for dev).
 
 Subcommands provide clean dispatch in the unified `cos` CLI (per the
-model-agnostic migration PRD) while keeping the full TUI as the primary
-experience. 'brief' now dispatches directly to its real dedicated view.
+model-agnostic migration PRD). HTML snapshot dashboard is now primary
+(`cos dashboard` / default: regen via generator + open); TUI is companion
+(`cos tui`). 'brief' now dispatches directly to its real dedicated view.
 
 Grok integration: wired in BriefScreen ('g' hotkey + button runs skeleton
 that writes structured data to overview-brief/data/ai-news.json; UI
 reflects it immediately. Future real X tool calls will replace stub).
+
+macOS helper (new): `cos setup-macos-handler` builds + installs the native
+Swift `cos://` URL scheme handler (see macos-helper/). This enables the
+dashboard (and any cos:// links) to drive Ghostty automatically on macOS.
+The handler is tiny, runs only on demand, and has zero background processes.
 """
 
 from __future__ import annotations
@@ -54,6 +61,12 @@ from .data.loader import (
     refresh_all,
     write_grok_ai_news,
 )
+
+import os
+import platform
+import subprocess
+import webbrowser
+from pathlib import Path
 
 
 # Internal TODO (wave2-5 launcher enhancement):
@@ -103,6 +116,57 @@ def _run_brief_screen() -> None:
             self.push_screen(BriefScreen())
 
     BriefHostApp().run()
+
+
+def _run_dashboard_snapshot() -> None:
+    """Regenerate the Basecamp snapshot HTML (generator is sole writer per PRD-cos-dashboard-basecamp.md)
+    then open it (respects COS_ROOT everywhere; macOS-first open).
+
+    Uses subprocess to invoke scripts/generate_dashboard.py --force (robust, no import side-effects on sys.path;
+    generator auto-detects COS_ROOT + reuses tui/data/loader contracts + tile_summary etc.).
+    Open uses subprocess ['open'] on mac / 'xdg-open' else, with webbrowser fallback. Non-blocking.
+    Matches generator main(argv) contract and _setup_macos_handler COS_ROOT detection.
+    """
+    print("cos dashboard — regenerating Basecamp snapshot HTML and opening (primary per PRD)...")
+    # COS_ROOT detection (mirrors _setup_macos_handler exactly; generator does same)
+    cos_root = os.environ.get("COS_ROOT")
+    if not cos_root:
+        this_file = Path(__file__).resolve()
+        candidate = this_file.parent.parent
+        if (candidate / "tui" / "data" / "loader.py").exists():
+            cos_root = str(candidate)
+        else:
+            cos_root = str(Path.home() / "cos")
+    cos_root_p = Path(cos_root).resolve()
+    gen_script = cos_root_p / "scripts" / "generate_dashboard.py"
+    if gen_script.exists():
+        try:
+            subprocess.run(
+                [sys.executable, str(gen_script), "--force"],
+                cwd=str(cos_root_p),
+                check=False,
+                capture_output=False,
+            )
+        except Exception as e:
+            print(f"  (generator note: {e})")
+    else:
+        print(f"  (generator not found at {gen_script}; will try existing dashboard.html)")
+    dash_path = cos_root_p / "dashboard.html"
+    if not dash_path.exists():
+        print(f"  No {dash_path}. (Run generator manually or verify COS_ROOT.)")
+        return
+    print(f"  snapshot: {dash_path}")
+    # Open (mac-first per spec/task; non-blocking)
+    try:
+        if platform.system() == "Darwin":
+            subprocess.Popen(["open", str(dash_path)])
+        else:
+            try:
+                subprocess.Popen(["xdg-open", str(dash_path)])
+            except Exception:
+                webbrowser.open(str(dash_path))
+    except Exception as e:
+        print(f"  open failed ({e}); open manually: {dash_path}")
 
 
 def _placeholder_cli(command: str) -> None:
@@ -178,8 +242,10 @@ def _placeholder_cli(command: str) -> None:
 def main(argv: Sequence[str] | None = None) -> None:
     """Dispatch subcommands to the appropriate TUI screen or CLI logic.
 
-    Only 'dashboard' (default) and 'brief' perform real work today.
-    'brief' now launches the full dedicated BriefScreen TUI (enhancement).
+    'dashboard' (default) now runs the generator + opens the Basecamp snapshot HTML
+    (primary per PRD-cos-dashboard-basecamp.md Phase 5; sole writer of dashboard.html).
+    'tui' launches the Textual companion (live tiles).
+    'brief' launches the full dedicated BriefScreen TUI (enhancement).
     Other commands are clean, documented placeholders (no crashes, helpful text)
     until their dedicated screens land in parallel implementation waves.
 
@@ -192,32 +258,38 @@ def main(argv: Sequence[str] | None = None) -> None:
 
     parser = argparse.ArgumentParser(
         prog="cos",
-        description="cos — terminal mission control for the personal OS (Textual TUI)",
+        description="cos — personal OS (Basecamp snapshot dashboard primary + TUI companion)",
         epilog=(
-            "Default action is the dashboard TUI (live tiles + hotkeys).\n"
+            "Default action (`cos` or `cos dashboard`): regenerate Basecamp snapshot HTML via generator (sole writer of dashboard.html per PRD) + open it (no server, embedded data, 20h freshness).\n"
             "Supported subcommands (clean dispatch):\n"
-            "  cos [dashboard]  Launch main tiles dashboard (b=Brief, r=Research, c=Capture, t=Tasks, ?=help)\n"
+            "  cos [dashboard]  Regenerate + open Basecamp snapshot HTML (primary; respects COS_ROOT)\n"
+            "  cos tui          Launch Textual TUI companion (live tiles + hotkeys b/r/c/t/?/q)\n"
             "  cos brief        Launch dedicated Brief view (real: live scans, writes, Grok 'g' AI News skeleton)\n"
             "  cos research     Placeholder for dedicated Research screen (Grok X-powered)\n"
             "  cos capture      Placeholder for dedicated Capture screen (gated vault writer)\n"
             "  cos tasks        Placeholder for unified Tasks/Calendar screen ('calendar' alias also works)\n"
-            "  cos refresh [finances|kb|learning|schedule|brief|all]  NEW (out-3): Grok layer refresher(s) — standalone, schema-validated writes to data/ contracts\n\n"
-            "All paths respect COS_ROOT. Grok integration lives in BriefScreen + tui/data/loader.py (refresh_* fns + write_grok_ai_news).\n"
-            "See tui/README.md for MVP status, hotkeys, Grok notes, and run instructions.\n"
-            "See prds/PRD-cos-model-agnostic-migration-and-terminal-dashboard.md for the full plan."
+            "  cos refresh [...]  Grok layer refresher(s) — standalone, writes to data/ contracts\n"
+            "  cos setup-macos-handler   Build + install the native Swift cos:// URL handler (macOS only).\n"
+            "                            Enables dashboard action buttons to drive Ghostty automatically.\n"
+            "                            See macos-helper/README.md for Ghostty profile recommendations.\n\n"
+            "All paths respect COS_ROOT. Grok integration lives in BriefScreen + tui/data/loader.py.\n"
+            "See tui/README.md, root README.md, and macos-helper/ for the macOS handler story.\n"
+            "See prds/PRD-cos-dashboard-basecamp.md for the full snapshot dashboard + URL handler spec."
         ),
     )
     parser.add_argument(
         "command",
         nargs="?",
         default="dashboard",
-        choices=["dashboard", "brief", "research", "capture", "tasks", "calendar", "refresh"],
-        help="Subcommand (default: dashboard). 'brief' launches real TUI; 'refresh' runs Grok layer; others are future placeholders.",
+        choices=["dashboard", "tui", "brief", "research", "capture", "tasks", "calendar", "refresh", "setup-macos-handler"],
+        help="Subcommand (default: dashboard = HTML snapshot regen+open). 'tui' for live Textual companion; 'brief' launches real TUI; 'refresh' runs Grok layer; 'setup-macos-handler' installs the native cos:// helper on macOS.",
     )
 
     args = parser.parse_args(argv)
 
     if args.command == "dashboard":
+        _run_dashboard_snapshot()
+    elif args.command == "tui":
         CosDashboardApp().run()
     elif args.command == "brief":
         _run_brief_screen()
@@ -259,10 +331,137 @@ def main(argv: Sequence[str] | None = None) -> None:
             sys.exit(1)
     elif args.command in ("research", "capture", "tasks", "calendar"):
         _placeholder_cli(args.command)
+    elif args.command == "setup-macos-handler":
+        _setup_macos_handler()
     else:
         # Unreachable with current choices
         parser.print_help(sys.stderr)
         sys.exit(2)
+
+
+def _setup_macos_handler() -> None:
+    """One-time setup for the native macOS `cos://` URL scheme handler.
+
+    This is the user-facing entry point for the Swift helper documented in
+    macos-helper/README.md and PRD-cos-dashboard-basecamp.md.
+
+    Behavior:
+    - On non-macOS: prints friendly instructions + points to the README.
+    - On macOS: looks for the macos-helper/ tree (relative to COS_ROOT or the
+      running script). If present, invokes its build.sh --install (which
+      compiles the Swift helper, assembles the .app bundle, ad-hoc signs it,
+      copies to ~/Applications, and registers the scheme via lsregister).
+    - Always prints the Ghostty configuration recommendations and test commands.
+    - If sources are missing (e.g. pip-installed cos without the full repo),
+      prints manual build + install steps.
+
+    This keeps the Python side a thin, helpful orchestrator. All the real
+    native work lives in the self-contained Swift + shell build system.
+    """
+    print("cos setup-macos-handler — native cos:// URL handler for macOS\n")
+
+    if platform.system() != "Darwin":
+        print("This command is only relevant on macOS.")
+        print("On other platforms the dashboard gracefully falls back to copy-to-clipboard.")
+        print("\nSee macos-helper/README.md (in the cos repo) for the full story.")
+        return
+
+    # Try to locate the macos-helper tree.
+    # Precedence mirrors the bash launcher: explicit COS_ROOT, then auto-detect
+    # from this file's location, then ~/cos.
+    cos_root = os.environ.get("COS_ROOT")
+    if not cos_root:
+        # Best-effort auto-detect (this file lives in tui/ under the checkout)
+        this_file = Path(__file__).resolve()
+        # tui/__main__.py → project root
+        candidate = this_file.parent.parent
+        if (candidate / "macos-helper" / "build.sh").exists():
+            cos_root = str(candidate)
+        else:
+            cos_root = str(Path.home() / "cos")
+
+    helper_dir = Path(cos_root) / "macos-helper"
+    build_script = helper_dir / "build.sh"
+
+    print(f"cos root: {cos_root}")
+    print(f"Looking for helper sources in: {helper_dir}\n")
+
+    if build_script.exists():
+        print("Found macos-helper/ sources. Building and installing the native helper...")
+        print("This will compile the Swift app, create CosURLHandler.app, ad-hoc sign it,")
+        print("copy it to ~/Applications, and register the cos:// scheme.\n")
+
+        try:
+            # Make sure it's executable (in case of fresh clone)
+            build_script.chmod(0o755)
+            # Run with --install (build + copy + lsregister + open for registration)
+            result = subprocess.run(
+                [str(build_script), "--install"],
+                cwd=str(helper_dir),
+                check=True,
+                capture_output=False,   # let the nice colored output through
+            )
+            print("\n✅ Native handler installed and registered.")
+        except subprocess.CalledProcessError as e:
+            print(f"\nBuild/install step exited with code {e.returncode}.")
+            print("You can retry manually:")
+            print(f"   cd {helper_dir}")
+            print("   ./build.sh --install")
+            print("\nSee the output above and macos-helper/README.md for troubleshooting.")
+            sys.exit(1)
+        except Exception as e:
+            print(f"\nUnexpected error during build: {e}")
+            print("Falling back to manual instructions below.")
+    else:
+        print("macos-helper/ sources not found at the expected location.")
+        print("This is normal if you installed cos via pip/pipx without the full source tree.\n")
+
+    # Always print the manual / reference instructions + Ghostty guidance.
+    # This is the "delightful" part — even on failure the user gets everything they need.
+    print("\n" + "=" * 60)
+    print("NEXT STEPS & GHOSTTY RECOMMENDATIONS")
+    print("=" * 60)
+
+    print("""
+1. If the automatic build did not run or succeed, do this once:
+
+   cd /path/to/your/cos/checkout/macos-helper
+   ./build.sh --install
+
+   (Or `make install` if you prefer.)
+
+2. The helper is now registered. Test it:
+
+   open 'cos://brief'
+   open 'cos://research?ticker=NVDA'
+   open 'cos://task-add?text=Buy%20milk%20and%20eggs'
+   open 'cos://capture'
+   open 'cos://dashboard'
+
+3. Recommended Ghostty configuration (add to ~/.config/ghostty/config)
+   for the calm, high-quality experience the dashboard was designed for:
+
+   font-family = "JetBrains Mono"
+   font-size = 13
+   macos-titlebar-style = hidden
+   window-padding-x = 8
+   window-padding-y = 6
+
+   (Berkeley Mono or your favorite calm monospace also works great.)
+
+4. The handler prefers Ghostty and will open a *new tab* in the frontmost
+   Ghostty window when possible (exactly as specified in the PRD).
+   Keep one Ghostty window as your "cos workspace" and the experience is magical.
+
+Full documentation, troubleshooting, architecture, and integration notes for the
+future dashboard generator live in:
+
+   macos-helper/README.md
+   prds/PRD-cos-dashboard-basecamp.md  (search for "URL scheme")
+
+The helper only runs when a cos:// link is clicked — zero background processes,
+zero Dock icon, instant termination after dispatch. Production quality.
+""")
 
 
 if __name__ == "__main__":

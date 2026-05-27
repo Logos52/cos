@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.wedge.cos-brief</string>
+
+  <!-- Runs `cos brief` (regenerate + push to Apple Notes) at 07:20 daily,
+       just after the 07:17 cos-daily-digest populates the contracts.
+       A LaunchAgent (not Daemon) so it runs in your GUI session and can
+       script Notes. Install: see scripts/cos or the chat instructions. -->
+  <key>ProgramArguments</key>
+  <array>
+    <string>/Users/n1/Projects/cos/scripts/cos</string>
+    <string>brief</string>
+  </array>
+
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Hour</key><integer>7</integer>
+    <key>Minute</key><integer>20</integer>
+  </dict>
+
+  <key>RunAtLoad</key>
+  <false/>
+
+  <key>StandardOutPath</key>
+  <string>/Users/n1/Projects/cos/overview-brief/outputs/cos-brief.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/n1/Projects/cos/overview-brief/outputs/cos-brief.log</string>
+</dict>
+</plist>

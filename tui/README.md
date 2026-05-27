@@ -2,14 +2,14 @@
 
 This is the in-progress Textual-based terminal dashboard for the `cos` personal OS.
 
-It is the native terminal companion (and eventual primary view) for the same data layer that powers your current Cowork `dashboard.html`, briefs, and skills.
+It is the live companion / keyboard-power view (the HTML snapshot dashboard — Basecamp-style via `scripts/generate_dashboard.py` generator + `cos dashboard` — is primary per PRD-cos-dashboard-basecamp.md sign-off phase) for the same data layer that powers the snapshot `dashboard.html`, briefs, and skills. Old `cos-dashboard-refresh` task retired; generator is sole writer.
 
 ## Current Status (MVP + Real Actions + Grok Skeleton + Clean CLI Dispatch)
 
 - Live tiles for Finances, Knowledge Base, Learning, Schedule, and Knowledge Work
 - Pulls from the real canonical JSON contracts (`data/*.json` + `overview-brief/data/status.json`)
 - Graceful handling of partial data (`vault_error`, `calendar_unavailable`, etc.)
-- Real hotkeys wired: `ctrl+r`=light refresh (from disk), `u`=Update all (smart shared ensure: checks Cowork data first, only runs the common refresh_* if stale >~20h or forced — real data, no redundancy), `b`=Brief (auto-refreshes dashboard + opens full BriefScreen with live vault scans + write support), `c`=Capture, `t`=Tasks/Calendar, `?`=help, `q`=quit
+- Real hotkeys wired: `ctrl+r`=light refresh (from disk; TUI-specific), `u`=Update all (smart shared ensure: checks Cowork data first, only runs the common refresh_* if stale >~20h or forced — real data, no redundancy), `b`=Brief (TUI-internal: auto-refreshes TUI tiles + opens full BriefScreen with live vault scans + write support), `c`=Capture, `t`=Tasks/Calendar, `?`=help, `q`=quit
 - Startup: on launch the dashboard automatically ensures real data via the shared loader (Cowork 7am schedule + TUI open ~7:30am typically sees fresh data with zero extra work)
 - Dedicated BriefScreen (Doom-Emacs style, first per-domain full view): real logic for /brief (scans inbox/workbench/journal Qs read-only, renders canonical markdown, supports write of status.json + daily brief-*.md)
 - Grok integration skeleton: "run with Grok" action (hotkey `g` + button in BriefScreen) — writes structured stub to overview-brief/data/ai-news.json (the reserved Phase 2 slot); UI immediately reflects it in the AI News section. Future real X tool calls (semantic/keyword search etc.) will replace the demo payload.
@@ -54,7 +54,7 @@ cos --help
 
 The launcher (`scripts/cos`) + Python entry point (`tui/__main__.py`) now cleanly support:
 
-- `cos` or `cos dashboard` → launches the main TUI dashboard (tiles + full hotkeys)
+- `cos` or `cos dashboard` → HTML snapshot (primary: generator regen + open); TUI companion via `cos tui` (tiles + full hotkeys). See primary HTML snapshot per PRD sign-off.
 - `cos brief` → launches the dedicated Brief TUI screen directly (full real implementation with live vault scans, writes, and Grok skeleton — equivalent to 'b' inside dashboard but as a top-level/standalone command)
 - `cos research`, `cos capture`, `cos tasks` (or `cos calendar`) → clean placeholders (helpful messages; dedicated screens coming in parallel waves)
 - Respects `COS_ROOT` env var or defaults to `~/cos` (and auto-detects when run from inside the source tree)
@@ -76,14 +76,10 @@ From CLI (even without launching dashboard first):
 
 The unified `cos` CLI entry point (per the model-agnostic migration plan / PRD Phase 1) has been enhanced for clean subcommand dispatch:
 
-- Primary today: `cos` / `cos dashboard` (the full mission control TUI with reactive tiles and hotkeys)
+- Primary today: `cos` / `cos dashboard` (the full mission control TUI companion with reactive tiles + hotkeys; HTML snapshot dashboard via `scripts/generate_dashboard.py` + `cos dashboard` / daily schedule is the primary visual per PRD-cos-dashboard-basecamp.md)
 - `cos brief` : **dispatches directly to the real dedicated BriefScreen TUI** (no longer a text placeholder). You get the full in-app /brief experience (live READ-ONLY vault scans for inbox/workbench/journal, canonical markdown, 'w' write to status.json + brief-YYYY-MM-DD.md, 'g' Grok AI News skeleton writing to the reserved ai-news.json slot, all hard rules honored). Perfect top-level entry for scripts, agents, or quick access.
-- Placeholders (recognized cleanly with no "invalid choice" errors, helpful guidance): `cos research`, `cos capture`, `cos tasks`, `cos calendar`. These print status + point to:
-  - Current in-TUI hotkeys ('r'/'c'/'t')
-  - The source toolbox/*.md skill prompts
-  - Grok integration notes (especially for research/brief)
-  - The PRD and this README
-  - Will be upgraded to real dedicated screen launches (same BriefHostApp pattern) as the parallel waves complete the screens.
+- Placeholders (recognized cleanly with no "invalid choice" errors, helpful guidance): `cos research`, `cos capture`, `cos tasks`, `cos calendar`.
+- **NEW:** `cos setup-macos-handler` — builds and installs the native Swift `cos://` URL scheme helper (see `macos-helper/`). On macOS this turns dashboard action buttons into "do the thing in Ghostty" instead of just copy-to-clipboard. The helper is tiny, runs only on demand, and self-terminates. Full docs + Ghostty profile recommendations live in `macos-helper/README.md`.
 - Full parity: `python -m tui brief`, `python -m tui research`, etc. all work.
 - All paths go through the existing `tui/data/loader.py` contracts (COS_ROOT-aware) and honor the one-writer / vault-read-only rules.
 - The dispatch logic lives in `tui/__main__.py` (with detailed internal TODOs for the next waves) + thin delegation in `scripts/cos`.
@@ -131,7 +127,7 @@ You can also run the TUI directly with the venv python:
 
 ( Note: the dev command uses the direct class path; the `cos` launcher / `python -m tui` path is the user-facing one. The launcher auto-detects `.venv` so you rarely need to activate. )
 
-See the parent `prds/` directory for the full model-agnostic + terminal dashboard plan (especially PRD-cos-model-agnostic-migration-and-terminal-dashboard.md for the unified `cos` CLI direction and Grok layer).
+See the parent `prds/` directory for the full model-agnostic + terminal dashboard plan (the unified `cos` CLI direction and Grok layer).
 
 **out-3 (model-agnostic foundation) complete:** Machine-readable JSON Schemas (in tui/data/loader.py:JSON_SCHEMAS + get_json_schema) + dataclasses/validate_contract for the 6 core contracts (runway, open_questions, stale_notes, intake_queue, upcoming, status, ai_news). Grok layer: standalone refresh_finances (real csv+compute), refresh_* for other domains, write_grok_ai_news (for X-briefs), refresh_all. All importable (`from tui.data.loader import ...`), honor hard rules, no new files. Unified CLI: `cos refresh [finances|kb|...|all]` dispatches (in tui/__main__.py). Enables full Grok Build / Hermes runtime over the data layer. See loader.py source + tests/.
 

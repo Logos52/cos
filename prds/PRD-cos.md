@@ -1,7 +1,7 @@
 # PRD — `cos`: An Autonomous Personal OS in Cowork
 
 **Owner:** Wedge · **Author:** drafted in Claude chat · **Build surface:** Claude Cowork (model-agnostic — any capable agent can execute)
-**Foundation:** Cowork Productivity plugin · **Data layer:** local files in `~/cos/` · **Status:** Foundational Cowork build complete; TUI MVP + model-agnostic migration in progress (see PRD-cos-model-agnostic-migration-and-terminal-dashboard.md); out-4 docs/process updates applied — 2026-05-26
+**Foundation:** Cowork Productivity plugin · **Data layer:** local files in `~/cos/` · **Status:** Foundational Cowork build complete; TUI MVP + model-agnostic migration in progress; out-4 docs/process updates applied — 2026-05-26
 
 ---
 

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- Bundle Identity -->
+    <key>CFBundleIdentifier</key>
+    <string>com.wedge.cos-url-handler</string>
+    <key>CFBundleName</key>
+    <string>CosURLHandler</string>
+    <key>CFBundleDisplayName</key>
+    <string>cos:// URL Handler</string>
+    <key>CFBundleVersion</key>
+    <string>1</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.0.0</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleExecutable</key>
+    <string>CosURLHandler</string>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+    <key>CFBundleDevelopmentRegion</key>
+    <string>en</string>
+
+    <!-- No UI / Accessory behavior -->
+    <!-- LSUIElement = true makes the app background-only (no Dock icon, no menu bar).
+         Perfect for a URL scheme handler that only ever runs on-demand and then terminates. -->
+    <key>LSUIElement</key>
+    <true/>
+
+    <!-- URL Scheme Registration (the whole point of this helper) -->
+    <key>CFBundleURLTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleURLName</key>
+            <string>com.wedge.cos.url-scheme</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>cos</string>
+            </array>
+            <key>CFBundleTypeRole</key>
+            <string>Viewer</string>
+        </dict>
+    </array>
+
+    <!-- Minimum macOS version (Ghostty AppleScript + modern URL handling) -->
+    <key>LSMinimumSystemVersion</key>
+    <string>11.0</string>
+
+    <!-- Human-readable description for Launch Services / Get Info -->
+    <key>CFBundleGetInfoString</key>
+    <string>cos:// custom URL scheme handler for the cos personal OS dashboard. Launches Ghostty (preferred) or Terminal with the corresponding `cos` subcommand.</string>
+
+    <!-- Optional: category for App Store / Launch Services (even though not distributed there) -->
+    <key>LSApplicationCategoryType</key>
+    <string>public.app-category.utilities</string>
+
+    <!-- We do not need any special entitlements for this minimal helper.
+         AppleScript automation permission will be prompted by the system the first time
+         the handler tries to control Ghostty (standard TCC). -->
+</dict>
+</plist>

@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-05-26T21:03:44.231024+07:00",
-  "tile_summary": "Knowledge work active: 13 inbox (AI agents, productivity systems, study techniques, second-brain tooling) and 1 workbench item (wiki health). No journal questions. Knowledge base open questions focus on disciplined LLM tool use and sustaining higher cognition with AI. AI News digest awaiting Grok.",
+  "generated_at": "2026-05-27T07:18:04+07:00",
+  "tile_summary": "Knowledge Work is in a high-intake phase: 13 unprocessed inbox items (agentic engineering, Hermes operations, study craft, second-brain tooling) and 1 workbench item (wiki health, 2 days old). Inbox + workbench scanned live this run. Journal surfaced 13 open questions, the 3 most recent (2026-05-23) circling self-updating-wiki design. AI News digest is live again (5 Grok-sourced items, Textual-TUI / personal-OS themed). Caveat: upstream vault-scan failed 2 consecutive runs, so stale-note detection is currently blind and open-question counts are a 2-day-old snapshot.",
   "inbox": {
     "count": 13,
     "items": [
@@ -89,17 +89,68 @@
     "items": [
       {
         "filename": "2026-05-25 Wiki Status + Health Check Report.md",
-        "days_old": 0
+        "days_old": 2
       }
     ]
   },
   "journal_questions": {
-    "count": 0,
-    "sample": []
+    "count": 13,
+    "sample": [
+      {
+        "question": "How does this interact with the public Quartz surface and the desire for a meta-dashboard / Start Here experience?",
+        "source": "journal/2026-05-23-Possible-Paths-Self-Updating-Wiki-and-LLM-Wiki-Integration.md",
+        "created": "2026-05-23"
+      },
+      {
+        "question": "What does \"self-updating\" actually mean in practice for this specific voice and Five Dimensions commitment — nightly digests? On-ingest proposals? Weekly contradiction reports?",
+        "source": "journal/2026-05-23-Possible-Paths-Self-Updating-Wiki-and-LLM-Wiki-Integration.md",
+        "created": "2026-05-23"
+      },
+      {
+        "question": "How much of the lint/audit/cross-ref work should be skill-driven vs. simple scripts vs. occasional Hermes sessions?",
+        "source": "journal/2026-05-23-Possible-Paths-Self-Updating-Wiki-and-LLM-Wiki-Integration.md",
+        "created": "2026-05-23"
+      }
+    ]
   },
   "ai_news": {
-    "available": false,
-    "note": "Phase 2 — Grok Build"
+    "available": true,
+    "generated_at": "2026-05-27T00:15:12.730831+07:00",
+    "source": "Grok (xAI) via cos TUI BriefScreen",
+    "count": 5,
+    "items": [
+      {
+        "title": "Grok Build agentic coding CLI now available for SuperGrok subscribers",
+        "url": "https://x.com/mark_k/status/2058494269757764056",
+        "date": "2026-05-24"
+      },
+      {
+        "title": "Multi-modal parallel agent orchestration + self-assembling context = personal operating systems are here",
+        "url": "https://x.com/sierracatalina/status/2058420619088101468",
+        "date": "2026-05-24"
+      },
+      {
+        "title": "RunoGraph: Local-first Textual TUI for coding agent observability and session monitoring",
+        "url": "https://x.com/andrii_arte/status/2055424424292012522",
+        "date": "2026-05-15"
+      },
+      {
+        "title": "Moon Traveler Terminal: Textual TUI with local LLMs and SQLite memory for agentic procedural worlds",
+        "url": "https://x.com/elephantatech/status/2046306687632781501",
+        "date": "2026-04-20"
+      },
+      {
+        "title": "AIRecon: Self-hosted LLM + Docker sandbox + Textual TUI for fully autonomous agentic pentesting",
+        "url": "https://x.com/Dinosn/status/2048270464779235431",
+        "date": "2026-04-26"
+      }
+    ]
   },
-  "tile_summary": "Knowledge Work currently reflects a high-intake phase with a 13-item inbox dominated by agentic engineering resources, language immersion techniques (Mandarin Chinese and Vietnamese), productivity systems, second-brain architecture, and analyses of social media's cognitive costs. A single fresh workbench item tracks wiki health and status, while journal questions remain at zero. The pattern signals strong momentum in exploring Hermes agents, Textual reactive UIs, and study craft, creating an immediate opportunity for a synthesis pass that converts the incoming stream into durable patterns and clears processing debt."
+  "data_health": {
+    "vault_live_scan": "ok — inbox + workbench scanned directly this run",
+    "stale_notes": "DEGRADED — upstream vault-scan failed 2 consecutive runs; stale-notes.json count=0 with no last-good snapshot, so stale-note detection is currently blind",
+    "open_questions": "STALE — serving last-good snapshot from 2026-05-25 (upstream scan failed); total=565",
+    "calendar": "unavailable — google-calendar connector not present this run",
+    "schema_note": "open-questions.json entries use path/raised, not source/created as the task spec assumed; journal filter adapted to .path containing '/journal/'"
+  }
 }
